@@ -41,48 +41,47 @@ public final class Constants {
 
     public static final int shooterLID = 15;
     public static final int shooterFID = 16;
-      public static final double kP = 0;
-      public static final double kI = 0;
-      public static final double kD = 0;
-      public static final double kS = 0;
-      public static final double kV = 0;
-      public static final double kA = 0;
-      public static final double RPM_TOLERANCE = 0;
+    public static final double kP = 0;
+    public static final double kI = 0;
+    public static final double kD = 0;
+    public static final double kS = 0;
+    public static final double kV = 0;
+    public static final double kA = 0;
+    public static final double RPM_TOLERANCE = 0;
 
-      public static final double gearRatio = 0;
-      public static final double DEGREES_PER_ROT = 360 / gearRatio;
+    public static final double gearRatio = 0;
+    public static final double DEGREES_PER_ROT = 360 / gearRatio;
 
-      public static final double max_RPM = 0;
-      public static final double targetRPM = 0;
-      public static final double shotslope = 0;
+    public static final double max_RPM = 0;
+    public static final double targetRPM = 0;
+    public static final double shotslope = 0;
   }
 
   public static class HoodConstants {
 
     public static final int hoodID = 17;
-      public static final double kP = 0;
-      public static final double kI = 0;
-      public static final double kD = 0;
-      public static final double kFF = 0;
-      public static final double RPM_TOLERANCE = 0;
+    public static final double kP = 0;
+    public static final double kI = 0;
+    public static final double kD = 0;
+    public static final double kFF = 0;
+    public static final double RPM_TOLERANCE = 0;
 
-    //Encoder -> degrees
-      public static final double gearRatio = 0;
-      public static final double DEGREES_PER_ROT = 360 / gearRatio;
+    // Encoder -> degrees
+    public static final double gearRatio = 0;
+    public static final double DEGREES_PER_ROT = 360 / gearRatio;
 
-      public static final double minAngle = 0;
-      public static final double maxAngle = 0;
-      public static final double hoodslope = 0;
+    public static final double minAngle = 0;
+    public static final double maxAngle = 0;
+    public static final double hoodslope = 0;
   }
-  
+
   public static class LimeLightConstants {
-    //Limelight
+    // Limelight
     public static final double LIMELIGHT_HEIGHT = 0;
     public static final double LIMELIGHT_ANGLE = 0;
 
-    //Hub
+    // Hub
     public static final double TARGET_HEIGHT = 0;
     public static final double HUB_APRILTAG_HEIGHT = 0;
   }
-
 }
