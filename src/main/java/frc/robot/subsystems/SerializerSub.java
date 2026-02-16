@@ -11,27 +11,26 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class SerializerSub extends SubsystemBase {
   // CANID is a placeholder, needs to be set
-  public SparkMax motorVariable;
-  private final SparkMax m_motor = new SparkMax(18, MotorType.kBrushless);
+  private final SparkMax motor;
 
   public SerializerSub() {
-    motorVariable = new SparkMax(14, MotorType.kBrushless);
+    motor = new SparkMax(Constants.SerializerConstands.serializerID, MotorType.kBrushless);
     SparkMaxConfig configuration = new SparkMaxConfig();
 
     configuration.inverted(false).idleMode(IdleMode.kCoast);
 
-    motorVariable.configure(
-        configuration, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    motor.configure(configuration, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   public void runSerializer(double speed) {
-    m_motor.set(speed);
+    motor.set(speed);
   }
 
   public void stop() {
-    m_motor.set(0.8);
+    motor.set(0);
   }
 }

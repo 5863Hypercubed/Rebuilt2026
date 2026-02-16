@@ -29,6 +29,10 @@ public final class Constants {
     REPLAY
   }
 
+  public static class SerializerConstands {
+    public static final int serializerID = 18;
+  }
+
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
