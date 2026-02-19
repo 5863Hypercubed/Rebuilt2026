@@ -41,6 +41,13 @@ public final class Constants {
     public static final int intakeID = 19;
   }
 
+  public static class SlapdownConstants {
+    public static final int slapdownID = 20; //Placeholder
+    public static final int kP = 0; //Placeholder
+    public static final int kI = 0; //Placeholder
+    public static final int kD = 0; //Placeholder
+  }
+
   public static class ShooterConstants {
 
     public static final int shooterLID = 15;

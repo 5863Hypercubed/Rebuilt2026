@@ -22,8 +22,11 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.IntakeCMD;
+import frc.robot.commands.SlapdownUp;
+import frc.robot.commands.SlapdownDown;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Slapdown;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -47,14 +50,21 @@ public class RobotContainer {
   private final Vision vision;
   private final Drive drive;
   private final Intake m_intake = new Intake();
+  private final Slapdown m_slapdown = new Slapdown();
+  
 
-  // Controller
+  // Controllers
+  //Driver
   private final CommandXboxController driver = new CommandXboxController(0);
 
+  //Operator
   private final Joystick operator = new Joystick(1);
   private final JoystickButton intake =
       new JoystickButton(operator, XboxController.Button.kA.value);
-
+  private final JoystickButton slapdownUp =
+      new JoystickButton(operator, XboxController.Button.kB.value);
+  private final JoystickButton slapdownDown =
+      new JoystickButton(operator, XboxController.Button.kX.value);
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -187,6 +197,8 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     intake.whileTrue(new IntakeCMD(m_intake, 0.25));
+    intake.whileTrue(new SlapdownUp(m_intake));
+    slapdownDown.whileTrue(new SlapdownDown(m_intake));
   }
 
   /**

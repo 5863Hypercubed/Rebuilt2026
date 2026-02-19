@@ -4,24 +4,21 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-
+import frc.robot.Constants;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 
-public class Intake extends SubsystemBase {
-  public SparkMax intakeMotor;
-  public RelativeEncoder intakeEncoder;
-  
+
+public class Slapdown extends SubsystemBase {
+
   public SparkMax slapdownMotor;
   public RelativeEncoder slapdownEncoder;
   public PIDController slapdownPID;
@@ -36,21 +33,7 @@ public class Intake extends SubsystemBase {
 
   public slapdownStates slapdownState;
 
-  /** Creates a new Intake. */
-  public Intake() {
-    intakeMotor = new SparkMax(Constants.IntakeConstants.intakeID, MotorType.kBrushless);
-    intakeEncoder = intakeMotor.getEncoder();
-    SparkMaxConfig intakeConfig = new SparkMaxConfig();
-
-    intakeConfig
-        .inverted(false)
-        .idleMode(IdleMode.kBrake)
-        .smartCurrentLimit(15)
-        .voltageCompensation(12);
-
-    intakeMotor.configure(
-        intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
+  public Slapdown() {
     slapdownState = slapdownStates.UP;
     slapdownMotor = new SparkMax(Constants.SlapdownConstants.slapdownID, MotorType.kBrushless);
     slapdownEncoder = slapdownMotor.getEncoder();
@@ -71,10 +54,9 @@ public class Intake extends SubsystemBase {
         slapdownMotor.configure(slapdownConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
         slapdownEncoder.setPosition(0);
-        
   }
 
-    public void slapdownMove(double speed){
+  public void slapdownMove(double speed){
     slapdownMotor.set(-speed);
   }
 
@@ -98,11 +80,6 @@ public class Intake extends SubsystemBase {
 
   public boolean isAtSetPoint() {
     return slapdownPID.atSetpoint();
-  }
-
-
-  public void run(double speed) {
-    intakeMotor.set(speed);
   }
 
   @Override
