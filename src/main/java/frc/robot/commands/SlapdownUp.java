@@ -5,22 +5,22 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Intake.slapdownStates; 
+import frc.robot.subsystems.Slapdown;
+import frc.robot.subsystems.Slapdown.slapdownStates; 
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class SlapdownUp extends Command {
-  private final Intake m_intake;
+  private final Slapdown m_slapdown;
 
-  public SlapdownUp(Intake m_intake) {
-    this.m_intake = m_intake;
+  public SlapdownUp(Slapdown m_slapdown) {
+    this.m_slapdown = m_slapdown;
 
-    addRequirements(m_intake);
+    addRequirements(m_slapdown);
   }
 
   @Override
   public void initialize() {
-    m_intake.setState(slapdownStates.UP);
+    m_slapdown.setState(slapdownStates.UP);
   }
 
   @Override

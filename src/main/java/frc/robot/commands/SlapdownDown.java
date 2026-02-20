@@ -5,23 +5,23 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Intake.slapdownStates;;
+import frc.robot.subsystems.Slapdown;
+import frc.robot.subsystems.Slapdown.slapdownStates;;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class SlapdownDown extends Command {
-  private Intake m_intake;
+  private Slapdown m_slapdown;
 
-  public SlapdownDown(Intake m_intake) {
-    this.m_intake = m_intake;
+  public SlapdownDown(Slapdown m_slapdown) {
+    this.m_slapdown = m_slapdown;
 
-    addRequirements(m_intake);
+    addRequirements(m_slapdown);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_intake.setState(slapdownStates.DOWN);
+    m_slapdown.setState(slapdownStates.DOWN);
   }
 
   // Called every time the scheduler runs while the command is scheduled.

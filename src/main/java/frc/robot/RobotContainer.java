@@ -21,11 +21,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.IntakeCMD;
 import frc.robot.commands.SlapdownUp;
 import frc.robot.commands.SlapdownDown;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Slapdown;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -49,7 +47,6 @@ public class RobotContainer {
   // Subsystems
   private final Vision vision;
   private final Drive drive;
-  private final Intake m_intake = new Intake();
   private final Slapdown m_slapdown = new Slapdown();
   
 
@@ -59,8 +56,6 @@ public class RobotContainer {
 
   //Operator
   private final Joystick operator = new Joystick(1);
-  private final JoystickButton intake =
-      new JoystickButton(operator, XboxController.Button.kA.value);
   private final JoystickButton slapdownUp =
       new JoystickButton(operator, XboxController.Button.kB.value);
   private final JoystickButton slapdownDown =
@@ -196,9 +191,9 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    intake.whileTrue(new IntakeCMD(m_intake, 0.25));
-    intake.whileTrue(new SlapdownUp(m_intake));
-    slapdownDown.whileTrue(new SlapdownDown(m_intake));
+    slapdownDown.whileTrue(new SlapdownDown(m_slapdown));
+    slapdownUp.whileTrue(new SlapdownUp(m_slapdown));
+
   }
 
   /**
