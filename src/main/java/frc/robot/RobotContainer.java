@@ -10,6 +10,7 @@ package frc.robot;
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -21,10 +22,16 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.SlapdownUp;
+import frc.robot.commands.Intake;
+import frc.robot.commands.SerializerCmd;
 import frc.robot.commands.SlapdownDown;
+import frc.robot.commands.SlapdownUp;
+import frc.robot.commands.test.Flywheel;
+import frc.robot.commands.test.SlapdownManual;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.SerializerSub;
 import frc.robot.subsystems.Slapdown;
+import frc.robot.subsystems.Shooter.ShooterSub;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -48,18 +55,27 @@ public class RobotContainer {
   private final Vision vision;
   private final Drive drive;
   private final Slapdown m_slapdown = new Slapdown();
-  
+  private final SerializerSub m_serializer = new SerializerSub();
+  private final ShooterSub m_flywheel = new ShooterSub();
 
   // Controllers
-  //Driver
+  // Driver
   private final CommandXboxController driver = new CommandXboxController(0);
 
-  //Operator
+  // Operator
   private final Joystick operator = new Joystick(1);
+  
   private final JoystickButton slapdownUp =
       new JoystickButton(operator, XboxController.Button.kB.value);
   private final JoystickButton slapdownDown =
       new JoystickButton(operator, XboxController.Button.kX.value);
+  private final JoystickButton slapdownIntake =
+      new JoystickButton(operator, XboxController.Button.kY.value);
+  private final JoystickButton serializer =
+      new JoystickButton(operator, XboxController.Button.kA.value);
+  private final JoystickButton flywheel =
+      new JoystickButton(operator, XboxController.Button.kRightBumper.value);
+  private final int slapdownManual = XboxController.Axis.kRightY.value;
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -136,6 +152,10 @@ public class RobotContainer {
         break;
     }
 
+    m_slapdown.setDefaultCommand(
+        new SlapdownManual(
+            m_slapdown, () -> MathUtil.clamp(operator.getRawAxis(slapdownManual), -0.2, 0.2)));
+
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
@@ -193,7 +213,9 @@ public class RobotContainer {
 
     slapdownDown.whileTrue(new SlapdownDown(m_slapdown));
     slapdownUp.whileTrue(new SlapdownUp(m_slapdown));
-
+    slapdownIntake.whileTrue(new Intake(m_slapdown, 0.25));
+    serializer.whileTrue(new SerializerCmd(m_serializer, 0.5));
+    flywheel.whileTrue(new Flywheel(m_flywheel, 45));
   }
 
   /**

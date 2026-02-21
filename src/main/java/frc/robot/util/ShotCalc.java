@@ -21,11 +21,11 @@ public class ShotCalc {
     rpmMap.put(null, null);
   }
 
-  public double rpmFromDistance(double distance) {
+  public static double rpmFromDistance(double distance) {
     return rpmMap.get(distance);
   }
 
-  public double hoodFromDistance(double distance) {
+  public static double hoodFromDistance(double distance) {
     return hoodMap.get(distance);
   }
 }

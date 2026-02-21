@@ -2,35 +2,40 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.test;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Slapdown;
-import frc.robot.subsystems.Slapdown.slapdownStates;
+import frc.robot.subsystems.Shooter.ShooterSub;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class SlapdownDown extends Command {
-  private Slapdown m_slapdown;
+public class Flywheel extends Command {
+  ShooterSub m_flywheel;
+  double RPM;
 
-  public SlapdownDown(Slapdown m_slapdown) {
-    this.m_slapdown = m_slapdown;
+  /** Creates a new Flywheel. */
+  public Flywheel(ShooterSub m_flywheel, double RPM) {
+    this.m_flywheel = m_flywheel;
+    this.RPM = RPM;
 
-    addRequirements(m_slapdown);
+    // Use addRequirements() here to declare subsystem dependencies.
+    addRequirements(m_flywheel);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-    m_slapdown.setState(slapdownStates.DOWN);
-  }
+  public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+    m_flywheel.setRPM(RPM);
+  }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    m_flywheel.setRPM(0);
+  }
 
   // Returns true when the command should end.
   @Override

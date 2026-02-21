@@ -41,11 +41,13 @@ public final class Constants {
     public static final int intakeID = 19;
   }
 
+
   public static class SlapdownConstants {
-    public static final int slapdownID = 20; //Placeholder
-    public static final int kP = 0; //Placeholder
-    public static final int kI = 0; //Placeholder
-    public static final int kD = 0; //Placeholder
+    public static final int slapdownID = 20; // Placeholder
+    public static final int kP = 1; // Placeholder
+    public static final int kI = 0; // Placeholder
+    public static final int kD = 0; // Placeholder
+    public static final int wheelID = 21;
   }
 
   public static class ShooterConstants {
@@ -60,7 +62,8 @@ public final class Constants {
     public static final double kA = 0;
     public static final double RPM_TOLERANCE = 0;
 
-    public static final double gearRatio = 0;
+    //get more accurate gear ratio
+    public static final double gearRatio = 0.67;
     public static final double DEGREES_PER_ROT = 360 / gearRatio;
 
     public static final double max_RPM = 0;

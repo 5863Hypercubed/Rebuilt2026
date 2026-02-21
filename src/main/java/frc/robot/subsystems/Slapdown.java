@@ -4,29 +4,31 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import frc.robot.Constants;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class Slapdown extends SubsystemBase {
 
   public SparkMax slapdownMotor;
+  public SparkMax wheelMotor;
   public RelativeEncoder slapdownEncoder;
+  public RelativeEncoder wheelEncoder;
   public PIDController slapdownPID;
   boolean isAtSetPoint;
 
   public static double slapdownPosition = 0;
 
-  public enum slapdownStates{
+  public enum slapdownStates {
     UP,
     DOWN
   }
@@ -36,37 +38,56 @@ public class Slapdown extends SubsystemBase {
   public Slapdown() {
     slapdownState = slapdownStates.UP;
     slapdownMotor = new SparkMax(Constants.SlapdownConstants.slapdownID, MotorType.kBrushless);
+    wheelMotor = new SparkMax(Constants.SlapdownConstants.wheelID, MotorType.kBrushless);
     slapdownEncoder = slapdownMotor.getEncoder();
-    slapdownPID = new PIDController(Constants.SlapdownConstants.kP, Constants.SlapdownConstants.kI, Constants.SlapdownConstants.kD);
-      SparkMaxConfig slapdownConfig = new SparkMaxConfig();
+    wheelEncoder = wheelMotor.getEncoder();
+    slapdownPID =
+        new PIDController(
+            Constants.SlapdownConstants.kP,
+            Constants.SlapdownConstants.kI,
+            Constants.SlapdownConstants.kD);
+    SparkMaxConfig slapdownConfig = new SparkMaxConfig();
+    SparkMaxConfig wheelConfig = new SparkMaxConfig();
 
     slapdownPID.setTolerance(0.01);
-      slapdownConfig.softLimit
-      .forwardSoftLimit(0) //Placeholder
-        .forwardSoftLimitEnabled(true)
-        .reverseSoftLimit(0) //Placeholder
-        .reverseSoftLimitEnabled(true);
+    slapdownConfig.inverted(false).idleMode(IdleMode.kBrake);
 
-        slapdownConfig
-        .smartCurrentLimit(0) //Placholder
-        .voltageCompensation(0); //Placeholder
+    slapdownConfig
+        .softLimit
+        .forwardSoftLimit(0) // Placeholder
+        .forwardSoftLimitEnabled(false)
+        .reverseSoftLimit(0) // Placeholder
+        .reverseSoftLimitEnabled(false);
 
-        slapdownMotor.configure(slapdownConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        
-        slapdownEncoder.setPosition(0);
+    slapdownConfig
+        .smartCurrentLimit(15) // Placholder
+        .voltageCompensation(12); // Placeholder
+
+    wheelConfig
+        .inverted(false)
+        .idleMode(IdleMode.kBrake)
+        .smartCurrentLimit(15)
+        .voltageCompensation(12);
+
+    slapdownMotor.configure(
+        slapdownConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    wheelMotor.configure(
+        wheelConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    slapdownEncoder.setPosition(0);
   }
 
-  public void slapdownMove(double speed){
+  public void slapdownMove(double speed) {
     slapdownMotor.set(-speed);
   }
 
   public void slapdownPosition(double setPoint) {
-    double speedOutput = MathUtil.clamp(slapdownPID.calculate(slapdownEncoder.getPosition(), setPoint), -0.8, 0.8);
+    double speedOutput =
+        MathUtil.clamp(slapdownPID.calculate(slapdownEncoder.getPosition(), setPoint), -0.8, 0.8);
     slapdownMove(-speedOutput);
-
   }
 
-  public void resetSlapdownEncoder(){
+  public void resetSlapdownEncoder() {
     slapdownEncoder.setPosition(0);
   }
 
@@ -74,12 +95,24 @@ public class Slapdown extends SubsystemBase {
     return slapdownState;
   }
 
-  public void setState(slapdownStates state){
+  public void setState(slapdownStates state) {
     slapdownState = state;
   }
 
   public boolean isAtSetPoint() {
     return slapdownPID.atSetpoint();
+  }
+
+  public void wheelGo(double speed) {
+    wheelMotor.set(speed);
+  }
+
+  public void wheelStop() {
+    wheelMotor.set(0);
+  }
+
+  public void slapdownManual(double speed) {
+    slapdownMotor.set(speed);
   }
 
   @Override
@@ -90,12 +123,12 @@ public class Slapdown extends SubsystemBase {
 
     switch (slapdownState) {
       case UP:
-      slapdownPosition(0); //Placeholder
-      break;
+        slapdownPosition(0); // Placeholder
+        break;
 
       case DOWN:
-      slapdownPosition(0); //Placeholder
-      break;
+        slapdownPosition(0); // Placeholder
+        break;
     }
   }
 }

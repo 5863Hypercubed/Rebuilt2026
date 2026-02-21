@@ -34,13 +34,18 @@ public class ShooterSub extends SubsystemBase {
     // Leader
     shooterLMotor = new SparkMax(Constants.ShooterConstants.shooterLID, MotorType.kBrushless);
     SparkMaxConfig shooterLConfig = new SparkMaxConfig();
-
-    shooterLConfig.inverted(false).idleMode(IdleMode.kCoast);
-    shooterLConfig.smartCurrentLimit(40).voltageCompensation(12);
-    shooterLConfig.closedLoop.p(Constants.ShooterConstants.kP);
-    shooterLConfig.closedLoop.i(Constants.ShooterConstants.kI);
-    shooterLConfig.closedLoop.d(Constants.ShooterConstants.kD);
     Lpid = shooterLMotor.getClosedLoopController();
+
+    shooterLConfig
+      .inverted(false)
+      .idleMode(IdleMode.kCoast);
+    shooterLConfig
+      .smartCurrentLimit(40)
+      .voltageCompensation(12);
+    shooterLConfig.closedLoop
+      .p(Constants.ShooterConstants.kP)
+      .i(Constants.ShooterConstants.kI)
+      .d(Constants.ShooterConstants.kD);
 
     shooterLMotor.configure(
         shooterLConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -49,8 +54,13 @@ public class ShooterSub extends SubsystemBase {
     shooterFMotor = new SparkMax(Constants.ShooterConstants.shooterFID, MotorType.kBrushless);
     SparkMaxConfig shooterFConfig = new SparkMaxConfig();
 
-    shooterFConfig.inverted(false).idleMode(IdleMode.kCoast).follow(shooterLMotor);
-    shooterFConfig.smartCurrentLimit(40).voltageCompensation(12);
+    shooterFConfig
+      .inverted(false)
+      .idleMode(IdleMode.kCoast)
+      .follow(shooterLMotor);
+    shooterFConfig
+      .smartCurrentLimit(40)
+      .voltageCompensation(12);
     Fpid = shooterFMotor.getClosedLoopController();
 
     shooterFMotor.configure(

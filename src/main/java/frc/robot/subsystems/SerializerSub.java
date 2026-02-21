@@ -15,19 +15,31 @@ import frc.robot.Constants;
 
 public class SerializerSub extends SubsystemBase {
   // CANID is a placeholder, needs to be set
+  //creates an empty sparkmax object
   private final SparkMax motor;
 
   public SerializerSub() {
+    //sets the value of the sparkmax object; canid and configures motor type
     motor = new SparkMax(Constants.SerializerConstands.serializerID, MotorType.kBrushless);
+    //creates a config object
     SparkMaxConfig configuration = new SparkMaxConfig();
 
-    configuration.inverted(false).idleMode(IdleMode.kCoast);
+    configuration
+      .inverted(false)
+      .idleMode(IdleMode.kCoast);
+    configuration
+      .smartCurrentLimit(12)
+      .voltageCompensation(12);
 
     motor.configure(configuration, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   public void runSerializer(double speed) {
     motor.set(speed);
+  }
+
+  public void autofeed() {
+    motor.set(0);
   }
 
   public void stop() {

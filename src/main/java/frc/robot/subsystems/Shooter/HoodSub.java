@@ -1,56 +1,71 @@
 package frc.robot.subsystems.Shooter;
 
-import com.revrobotics.PersistMode;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.ResetMode;
-import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfigurator;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class HoodSub extends SubsystemBase {
-  // L -> Leader / F -> Follower
-  private SparkMax hoodMotor;
-  private RelativeEncoder hoodEncoder;
 
-  private SparkClosedLoopController hpid;
+  private TalonFX hoodMotor;
+  private double hoodPos;
 
+  ////gear ratio
   public HoodSub() {
-    hoodMotor = new SparkMax(Constants.HoodConstants.hoodID, MotorType.kBrushless);
-    SparkMaxConfig hoodConfig = new SparkMaxConfig();
+    hoodMotor = new TalonFX(Constants.HoodConstants.hoodID);
+    hoodPos = hoodMotor.getPosition().getValueAsDouble();
+    TalonFXConfigurator hoodConfig = hoodMotor.getConfigurator();
+    MotorOutputConfigs outputConfig = new MotorOutputConfigs();
+    SoftwareLimitSwitchConfigs softLimitConfig = new SoftwareLimitSwitchConfigs();
+    CurrentLimitsConfigs currentConfig = new CurrentLimitsConfigs();
+    Slot0Configs pidConfig = new Slot0Configs();
 
-    hoodConfig.inverted(false).idleMode(IdleMode.kBrake);
-    hoodConfig.smartCurrentLimit(25).voltageCompensation(12);
-    hoodConfig.closedLoop.p(Constants.ShooterConstants.kP);
-    hoodConfig.closedLoop.i(Constants.ShooterConstants.kI);
-    hoodConfig.closedLoop.d(Constants.ShooterConstants.kD);
-    hpid = hoodMotor.getClosedLoopController();
+    outputConfig.NeutralMode = NeutralModeValue.Brake;
 
-    hoodMotor.configure(hoodConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    softLimitConfig.ForwardSoftLimitThreshold = 0;
+    softLimitConfig.ForwardSoftLimitEnable = false;
+    softLimitConfig.ReverseSoftLimitThreshold = 0;
+    softLimitConfig.ReverseSoftLimitEnable = false;
+
+    currentConfig.StatorCurrentLimit = 120;
+    currentConfig.StatorCurrentLimitEnable = true;
+
+    pidConfig.kP = Constants.HoodConstants.kP;
+    pidConfig.kI = Constants.HoodConstants.kI;
+    pidConfig.kD = Constants.HoodConstants.kD;
+
+    hoodConfig.apply(outputConfig);
+    hoodConfig.apply(softLimitConfig);
+    hoodConfig.apply(currentConfig);
+    hoodConfig.apply(pidConfig);
 
     // Encoders
     configEncoders();
   }
 
   private void configEncoders() {
-    hoodEncoder = hoodMotor.getEncoder();
-    hoodEncoder.setPosition(0);
+    hoodMotor.setPosition(0);
   }
 
   public void setAngle(double deg) {
-    deg = MathUtil.clamp(deg, Constants.HoodConstants.minAngle, Constants.HoodConstants.maxAngle);
+    PositionVoltage m_position = new PositionVoltage(0);
 
     double rot = deg / Constants.HoodConstants.DEGREES_PER_ROT;
-    hpid.setSetpoint(rot, ControlType.kPosition);
+    hoodMotor.setControl(
+        m_position.withPosition(
+            MathUtil.clamp(
+                rot, Constants.HoodConstants.minAngle, Constants.HoodConstants.maxAngle)));
   }
 
   public double getAngle() {
-    return hoodEncoder.getPosition() * Constants.HoodConstants.DEGREES_PER_ROT;
+    return hoodPos * Constants.HoodConstants.DEGREES_PER_ROT;
   }
 
   public void stop() {
