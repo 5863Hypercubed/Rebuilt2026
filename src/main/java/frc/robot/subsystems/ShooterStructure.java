@@ -25,7 +25,7 @@ public class ShooterStructure extends SubsystemBase {
   private ShooterState state = ShooterState.IDLE;
 
   public ShooterStructure(
-      ShooterSub shooter, HoodSub hood, VisionSub vision, SerializerSub serialzier) {
+      ShooterSub shooter, HoodSub hood, VisionSub vision, SerializerSub serializer) {
     this.shooter = shooter;
     this.hood = hood;
     this.vision = vision;

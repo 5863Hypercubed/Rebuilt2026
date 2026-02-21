@@ -63,7 +63,7 @@ public final class Constants {
     public static final double RPM_TOLERANCE = 0;
 
     //get more accurate gear ratio
-    public static final double gearRatio = 0.67;
+    public static final double gearRatio = 0;
     public static final double DEGREES_PER_ROT = 360 / gearRatio;
 
     public static final double max_RPM = 0;
@@ -81,7 +81,7 @@ public final class Constants {
     public static final double RPM_TOLERANCE = 0;
 
     // Encoder -> degrees
-    public static final double gearRatio = 0;
+    public static final double gearRatio = 0.67;
     public static final double DEGREES_PER_ROT = 360 / gearRatio;
 
     public static final double minAngle = 0;

@@ -78,7 +78,7 @@ public class Slapdown extends SubsystemBase {
   }
 
   public void slapdownMove(double speed) {
-    slapdownMotor.set(-speed);
+    slapdownMotor.set(speed);
   }
 
   public void slapdownPosition(double setPoint) {
