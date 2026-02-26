@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Shooter.HoodSub;
 import frc.robot.subsystems.Shooter.ShooterSub;
+import frc.robot.subsystems.hopper.SerializerSub;
 import frc.robot.util.ShotCalc;
 
 public class ShooterStructure extends SubsystemBase {
@@ -60,13 +61,13 @@ public class ShooterStructure extends SubsystemBase {
   }
 
   private void handleSpinUp() {
-
-    if (!vision.hasTarget()) {
+    // if (!vision.hasTarget()) {
+    if (vision.hasTarget()) {
       state = ShooterState.IDLE;
       return;
     }
 
-    double distance = vision.getDistanceInches();
+    double distance = 0.3; // vision.getDistanceInches();
     targetRPM = ShotCalc.rpmFromDistance(distance);
     targetAngle = ShotCalc.hoodFromDistance(distance);
 

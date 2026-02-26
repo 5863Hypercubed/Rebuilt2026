@@ -22,22 +22,25 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.Intake;
-import frc.robot.commands.SerializerCmd;
-import frc.robot.commands.SlapdownDown;
-import frc.robot.commands.SlapdownUp;
 import frc.robot.commands.test.Flywheel;
+import frc.robot.commands.test.HoodCom;
+import frc.robot.commands.test.SerializeTest;
 import frc.robot.commands.test.SlapdownManual;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.SerializerSub;
-import frc.robot.subsystems.Slapdown;
+import frc.robot.subsystems.HopperStructure;
+import frc.robot.subsystems.Shooter.HoodSub;
 import frc.robot.subsystems.Shooter.ShooterSub;
+import frc.robot.subsystems.ShooterStructure;
+import frc.robot.subsystems.VisionSub;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.hopper.IndexerSub;
+import frc.robot.subsystems.hopper.SerializerSub;
+import frc.robot.subsystems.hopper.SlapdownSub;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
@@ -54,9 +57,16 @@ public class RobotContainer {
   // Subsystems
   private final Vision vision;
   private final Drive drive;
-  private final Slapdown m_slapdown = new Slapdown();
+  private final SlapdownSub m_slapdown = new SlapdownSub();
   private final SerializerSub m_serializer = new SerializerSub();
   private final ShooterSub m_flywheel = new ShooterSub();
+  private final IndexerSub m_index = new IndexerSub();
+  private final HoodSub m_hood = new HoodSub();
+  private final VisionSub m_vision = new VisionSub();
+
+  private final HopperStructure hopperStructure = new HopperStructure(m_index, m_slapdown);
+  private final ShooterStructure shooterStructure =
+      new ShooterStructure(m_flywheel, m_hood, m_vision, m_serializer);
 
   // Controllers
   // Driver
@@ -64,17 +74,25 @@ public class RobotContainer {
 
   // Operator
   private final Joystick operator = new Joystick(1);
-  
-  private final JoystickButton slapdownUp =
-      new JoystickButton(operator, XboxController.Button.kB.value);
-  private final JoystickButton slapdownDown =
-      new JoystickButton(operator, XboxController.Button.kX.value);
-  private final JoystickButton slapdownIntake =
-      new JoystickButton(operator, XboxController.Button.kY.value);
-  private final JoystickButton serializer =
-      new JoystickButton(operator, XboxController.Button.kA.value);
-  private final JoystickButton flywheel =
+
+  private final JoystickButton startIndexButton =
+      new JoystickButton(operator, XboxController.Button.kLeftBumper.value);
+
+  private final JoystickButton startShootButton =
       new JoystickButton(operator, XboxController.Button.kRightBumper.value);
+
+  private final JoystickButton flywheelTest =
+      new JoystickButton(operator, XboxController.Button.kA.value);
+
+  private final JoystickButton serializeTest =
+      new JoystickButton(operator, XboxController.Button.kB.value);
+
+  private final JoystickButton hoodUpTest =
+      new JoystickButton(operator, XboxController.Button.kY.value);
+
+  private final JoystickButton hoodDownTest =
+      new JoystickButton(operator, XboxController.Button.kX.value);
+
   private final int slapdownManual = XboxController.Axis.kRightY.value;
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -207,15 +225,24 @@ public class RobotContainer {
             Commands.runOnce(
                     () ->
                         drive.setPose(
-                            new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
+                            new Pose2d(drive.getPose().getTranslation(), Rotation2d.k180deg)),
                     drive)
                 .ignoringDisable(true));
 
-    slapdownDown.whileTrue(new SlapdownDown(m_slapdown));
-    slapdownUp.whileTrue(new SlapdownUp(m_slapdown));
-    slapdownIntake.whileTrue(new Intake(m_slapdown, 0.25));
-    serializer.whileTrue(new SerializerCmd(m_serializer, 0.5));
-    flywheel.whileTrue(new Flywheel(m_flywheel, 45));
+    startIndexButton
+        .onTrue(Commands.runOnce(hopperStructure::requestINDEXING, hopperStructure))
+        .whileTrue(Commands.run(hopperStructure::requestINDEXING, hopperStructure))
+        .onFalse(Commands.runOnce(hopperStructure::stopIndexing, hopperStructure));
+
+    startShootButton
+        .onTrue(Commands.runOnce(shooterStructure::requestVisionShot, shooterStructure))
+        .whileTrue(Commands.run(shooterStructure::shoot, shooterStructure))
+        .onFalse(Commands.runOnce(shooterStructure::stopShooting, shooterStructure));
+
+    flywheelTest.whileTrue(new Flywheel(m_flywheel, .6));
+    serializeTest.whileTrue(new SerializeTest(m_serializer, .7));
+    hoodUpTest.whileTrue(new HoodCom(m_hood, -.05));
+    hoodDownTest.whileTrue(new HoodCom(m_hood, .05));
   }
 
   /**

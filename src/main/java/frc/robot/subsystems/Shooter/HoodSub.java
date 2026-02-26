@@ -17,7 +17,7 @@ public class HoodSub extends SubsystemBase {
   private TalonFX hoodMotor;
   private double hoodPos;
 
-  ////gear ratio
+  //// gear ratio
   public HoodSub() {
     hoodMotor = new TalonFX(Constants.HoodConstants.hoodID);
     hoodPos = hoodMotor.getPosition().getValueAsDouble();
@@ -29,12 +29,12 @@ public class HoodSub extends SubsystemBase {
 
     outputConfig.NeutralMode = NeutralModeValue.Brake;
 
-    softLimitConfig.ForwardSoftLimitThreshold = 0;
-    softLimitConfig.ForwardSoftLimitEnable = false;
-    softLimitConfig.ReverseSoftLimitThreshold = 0;
-    softLimitConfig.ReverseSoftLimitEnable = false;
+    softLimitConfig.ForwardSoftLimitThreshold = 0.5;
+    softLimitConfig.ForwardSoftLimitEnable = true;
+    softLimitConfig.ReverseSoftLimitThreshold = -1.36;
+    softLimitConfig.ReverseSoftLimitEnable = true;
 
-    currentConfig.StatorCurrentLimit = 120;
+    currentConfig.StatorCurrentLimit = 20;
     currentConfig.StatorCurrentLimitEnable = true;
 
     pidConfig.kP = Constants.HoodConstants.kP;
@@ -68,10 +68,16 @@ public class HoodSub extends SubsystemBase {
     return hoodPos * Constants.HoodConstants.DEGREES_PER_ROT;
   }
 
+  public void manualHood(double speed) {
+    hoodMotor.set(speed);
+  }
+
   public void stop() {
     hoodMotor.stopMotor();
   }
 
   @Override
-  public void periodic() {}
+  public void periodic() {
+    
+  }
 }

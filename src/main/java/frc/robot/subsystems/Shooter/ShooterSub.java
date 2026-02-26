@@ -36,16 +36,13 @@ public class ShooterSub extends SubsystemBase {
     SparkMaxConfig shooterLConfig = new SparkMaxConfig();
     Lpid = shooterLMotor.getClosedLoopController();
 
+    shooterLConfig.inverted(true).idleMode(IdleMode.kCoast);
+    shooterLConfig.smartCurrentLimit(40).voltageCompensation(12);
     shooterLConfig
-      .inverted(false)
-      .idleMode(IdleMode.kCoast);
-    shooterLConfig
-      .smartCurrentLimit(40)
-      .voltageCompensation(12);
-    shooterLConfig.closedLoop
-      .p(Constants.ShooterConstants.kP)
-      .i(Constants.ShooterConstants.kI)
-      .d(Constants.ShooterConstants.kD);
+        .closedLoop
+        .p(Constants.ShooterConstants.kP)
+        .i(Constants.ShooterConstants.kI)
+        .d(Constants.ShooterConstants.kD);
 
     shooterLMotor.configure(
         shooterLConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -54,13 +51,8 @@ public class ShooterSub extends SubsystemBase {
     shooterFMotor = new SparkMax(Constants.ShooterConstants.shooterFID, MotorType.kBrushless);
     SparkMaxConfig shooterFConfig = new SparkMaxConfig();
 
-    shooterFConfig
-      .inverted(false)
-      .idleMode(IdleMode.kCoast)
-      .follow(shooterLMotor);
-    shooterFConfig
-      .smartCurrentLimit(40)
-      .voltageCompensation(12);
+    shooterFConfig.inverted(false).idleMode(IdleMode.kCoast);
+    shooterFConfig.smartCurrentLimit(40).voltageCompensation(12);
     Fpid = shooterFMotor.getClosedLoopController();
 
     shooterFMotor.configure(
@@ -78,6 +70,11 @@ public class ShooterSub extends SubsystemBase {
     shooterFEncoder.setPosition(0);
   }
 
+  public void setspeed(double speed) {
+    shooterLMotor.set(speed);
+    shooterFMotor.set(speed);
+  }
+
   public void setRPM(double RPM) {
     double RPS = RPM / 60;
     double radPerSec = RPS * 2 * Math.PI;
@@ -86,6 +83,9 @@ public class ShooterSub extends SubsystemBase {
     double arbFF = ffVolts / 12.0;
 
     Lpid.setSetpoint(
+        RPM, ControlType.kVelocity, ClosedLoopSlot.kSlot0, arbFF, ArbFFUnits.kPercentOut);
+
+    Fpid.setSetpoint(
         RPM, ControlType.kVelocity, ClosedLoopSlot.kSlot0, arbFF, ArbFFUnits.kPercentOut);
   }
 

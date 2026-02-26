@@ -29,32 +29,32 @@ public final class Constants {
     REPLAY
   }
 
-  public static class SerializerConstands {
-    public static final int serializerID = 18;
+  public static class SerializerConstants {
+    public static final int serializerID = 22;
   }
 
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
 
-  public static class IntakeConstants {
-    public static final int intakeID = 19;
+  public static class IndexerConstants {
+    public static final int indexerID = 18;
   }
-
 
   public static class SlapdownConstants {
     public static final int slapdownID = 20; // Placeholder
     public static final int kP = 1; // Placeholder
     public static final int kI = 0; // Placeholder
     public static final int kD = 0; // Placeholder
-    public static final int wheelID = 21;
+
+    public static final int intakeID = 21;
   }
 
   public static class ShooterConstants {
 
-    public static final int shooterLID = 15;
-    public static final int shooterFID = 16;
-    public static final double kP = 0;
+    public static final int shooterLID = 15; // Right Motor
+    public static final int shooterFID = 16; // Left Motor
+    public static final double kP = 1.5;
     public static final double kI = 0;
     public static final double kD = 0;
     public static final double kS = 0;
@@ -62,8 +62,8 @@ public final class Constants {
     public static final double kA = 0;
     public static final double RPM_TOLERANCE = 0;
 
-    //get more accurate gear ratio
-    public static final double gearRatio = 0;
+    // get more accurate gear ratio
+    public static final double gearRatio = 1 / 1.2;
     public static final double DEGREES_PER_ROT = 360 / gearRatio;
 
     public static final double max_RPM = 0;
@@ -81,11 +81,12 @@ public final class Constants {
     public static final double RPM_TOLERANCE = 0;
 
     // Encoder -> degrees
-    public static final double gearRatio = 0.67;
+    public static final double gearRatio = 24 / 14;
     public static final double DEGREES_PER_ROT = 360 / gearRatio;
 
-    public static final double minAngle = 0;
-    public static final double maxAngle = 0;
+    // from horizontal
+    public static final double minAngle = 13;
+    public static final double maxAngle = 42;
     public static final double hoodslope = 0;
   }
 

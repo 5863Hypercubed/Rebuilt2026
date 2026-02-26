@@ -2,22 +2,23 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.test;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Slapdown;
+import frc.robot.subsystems.Shooter.HoodSub;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class Intake extends Command {
-  Slapdown m_intake;
+public class HoodCom extends Command {
+  HoodSub m_hood;
   double speed;
-  /** Creates a new Intake. */
-  public Intake(Slapdown m_intake, double speed) {
-    this.m_intake = m_intake;
+
+  /** Creates a new Flywheel. */
+  public HoodCom(HoodSub m_hood, double speed) {
+    this.m_hood = m_hood;
     this.speed = speed;
 
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(m_intake);
+    addRequirements(m_hood);
   }
 
   // Called when the command is initially scheduled.
@@ -27,13 +28,13 @@ public class Intake extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_intake.wheelGo(speed);
+    m_hood.manualHood(speed);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_intake.wheelStop();
+    m_hood.manualHood(0);
   }
 
   // Returns true when the command should end.

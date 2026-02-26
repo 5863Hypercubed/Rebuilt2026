@@ -5,16 +5,16 @@
 package frc.robot.commands.test;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Slapdown;
+import frc.robot.subsystems.hopper.SlapdownSub;
 import java.util.function.Supplier;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class SlapdownManual extends Command {
-  private Slapdown m_intake;
+  private SlapdownSub m_intake;
   private Supplier<Double> speed;
 
   /** Creates a new SlapdownManual. */
-  public SlapdownManual(Slapdown m_intake, Supplier<Double> speed) {
+  public SlapdownManual(SlapdownSub m_intake, Supplier<Double> speed) {
     this.m_intake = m_intake;
     this.speed = speed;
 
