@@ -1,5 +1,11 @@
 package frc.robot.subsystems.Shooter;
 
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
@@ -12,7 +18,13 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.units.measure.MutAngle;
+import edu.wpi.first.units.measure.MutAngularVelocity;
+import edu.wpi.first.units.measure.MutVoltage;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
 
@@ -29,6 +41,14 @@ public class ShooterSub extends SubsystemBase {
 
   private final SimpleMotorFeedforward sFF =
       new SimpleMotorFeedforward(ShooterConstants.kS, ShooterConstants.kV, ShooterConstants.kA);
+
+  private final MutVoltage flywheelVoltage = Volts.mutable(0);
+
+  private final MutAngle position = Radians.mutable(0);
+
+  private final MutAngularVelocity velocity = RadiansPerSecond.mutable(0);
+
+  private final SysIdRoutine flywheelRoutine;
 
   public ShooterSub() {
     // Leader
@@ -58,6 +78,22 @@ public class ShooterSub extends SubsystemBase {
     shooterFMotor.configure(
         shooterFConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
+    flywheelRoutine =
+      new SysIdRoutine(
+          new SysIdRoutine.Config(),
+          new SysIdRoutine.Mechanism(
+              shooterLMotor::setVoltage,
+              log -> {
+                log.motor("flywheel")
+                    .voltage(
+                        flywheelVoltage.mut_replace(
+                            shooterLMotor.get() * RobotController.getBatteryVoltage(), Volts))
+                    .angularPosition(position.mut_replace(shooterLEncoder.getPosition(), Rotations))
+                    .angularVelocity(
+                        velocity.mut_replace(
+                            shooterLEncoder.getVelocity() / 60, RotationsPerSecond));
+              },
+              this));
     // Encoders
     configEncoders();
   }
@@ -100,6 +136,10 @@ public class ShooterSub extends SubsystemBase {
 
   public void stop() {
     shooterLMotor.stopMotor();
+  }
+
+  public Command sysIdFlywheel(SysIdRoutine.Direction direction) {
+    return flywheelRoutine.quasistatic(direction);
   }
 
   @Override

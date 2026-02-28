@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Shooter.HoodSub;
 import frc.robot.subsystems.Shooter.ShooterSub;
@@ -103,4 +104,5 @@ public class ShooterStructure extends SubsystemBase {
       state = ShooterState.READY;
     }
   }
+
 }

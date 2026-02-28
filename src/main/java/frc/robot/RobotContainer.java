@@ -10,6 +10,8 @@ package frc.robot;
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -18,6 +20,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -84,7 +87,7 @@ public class RobotContainer {
   private final JoystickButton flywheelTest =
       new JoystickButton(operator, XboxController.Button.kA.value);
 
-  private final JoystickButton serializeTest =
+  final JoystickButton serializeTest =
       new JoystickButton(operator, XboxController.Button.kB.value);
 
   private final JoystickButton hoodUpTest =
@@ -94,6 +97,7 @@ public class RobotContainer {
       new JoystickButton(operator, XboxController.Button.kX.value);
 
   private final int slapdownManual = XboxController.Axis.kRightY.value;
+
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -174,6 +178,10 @@ public class RobotContainer {
         new SlapdownManual(
             m_slapdown, () -> MathUtil.clamp(operator.getRawAxis(slapdownManual), -0.2, 0.2)));
 
+    NamedCommands.registerCommand("requestVisionShot", Commands.runOnce(shooterStructure::requestVisionShot, shooterStructure));
+    NamedCommands.registerCommand("shoot", Commands.run(shooterStructure::shoot, shooterStructure));
+    NamedCommands.registerCommand("stopShooting", Commands.runOnce(shooterStructure::stopShooting, shooterStructure));
+
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
@@ -192,6 +200,7 @@ public class RobotContainer {
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
     // Configure the button bindings
     configureButtonBindings();
   }
