@@ -1,5 +1,7 @@
 package frc.robot.subsystems.Shooter;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -9,18 +11,24 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import java.util.function.Supplier;
 
 public class HoodSub extends SubsystemBase {
 
   private TalonFX hoodMotor;
-  private double hoodPos;
+  private Supplier<Angle> hoodPos;
+
+  private static final InterpolatingDoubleTreeMap hoodAngleMap = new InterpolatingDoubleTreeMap();
 
   //// gear ratio
   public HoodSub() {
     hoodMotor = new TalonFX(Constants.HoodConstants.hoodID);
-    hoodPos = hoodMotor.getPosition().getValueAsDouble();
+    hoodPos = hoodMotor.getPosition().asSupplier();
     TalonFXConfigurator hoodConfig = hoodMotor.getConfigurator();
     MotorOutputConfigs outputConfig = new MotorOutputConfigs();
     SoftwareLimitSwitchConfigs softLimitConfig = new SoftwareLimitSwitchConfigs();
@@ -46,6 +54,11 @@ public class HoodSub extends SubsystemBase {
     hoodConfig.apply(currentConfig);
     hoodConfig.apply(pidConfig);
 
+    hoodAngleMap.put(31.375, 0.0);
+    hoodAngleMap.put(81.4, 0.0);
+    hoodAngleMap.put(140.0, 0.0);
+    hoodAngleMap.put(211.9072, 0.0);
+
     // Encoders
     configEncoders();
   }
@@ -55,17 +68,33 @@ public class HoodSub extends SubsystemBase {
   }
 
   public void setAngle(double deg) {
-    PositionVoltage m_position = new PositionVoltage(0);
-
     double rot = deg / Constants.HoodConstants.DEGREES_PER_ROT;
-    hoodMotor.setControl(
-        m_position.withPosition(
-            MathUtil.clamp(
-                rot, Constants.HoodConstants.minAngle, Constants.HoodConstants.maxAngle)));
+
+    double clampedRot =
+        MathUtil.clamp(rot, Constants.HoodConstants.minAngle, Constants.HoodConstants.maxAngle);
+
+    double angleRad = Math.toRadians(deg);
+
+    double ff = Constants.HoodConstants.kFF * Math.cos(angleRad);
+
+    PositionVoltage request = new PositionVoltage(clampedRot);
+    request.FeedForward = ff;
+    request.FeedForward = MathUtil.clamp(request.FeedForward, -0.05, 0.05);
+
+    hoodMotor.setControl(request);
   }
 
-  public double getAngle() {
-    return hoodPos * Constants.HoodConstants.DEGREES_PER_ROT;
+  public double getInterpolatedAngle(double distance) {
+    return hoodAngleMap.get(distance);
+  }
+
+  public void setAngleFromDistance(double distance) {
+    double angle = hoodAngleMap.get(distance);
+    setAngle(angle);
+  }
+
+  public Supplier<Angle> getAngle() {
+    return hoodPos;
   }
 
   public void manualHood(double speed) {
@@ -77,5 +106,7 @@ public class HoodSub extends SubsystemBase {
   }
 
   @Override
-  public void periodic() {}
+  public void periodic() {
+    SmartDashboard.putNumber("hoodPosition", getAngle().get().in(Degrees));
+  }
 }

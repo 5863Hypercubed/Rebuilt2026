@@ -31,11 +31,11 @@ public class IntakeSub extends SubsystemBase {
   }
 
   public void runSerializer(double speed) {
-    motor.set(speed);
+    motor.set(-speed);
   }
 
   public void autofeed() {
-    motor.set(-0.8);
+    motor.set(-.9);
   }
 
   public void stop() {

@@ -35,7 +35,7 @@ public class IndexerSub extends SubsystemBase {
   }
 
   public void autofeed() {
-    motor.set(-0.8);
+    motor.set(0.8);
   }
 
   public void stop() {

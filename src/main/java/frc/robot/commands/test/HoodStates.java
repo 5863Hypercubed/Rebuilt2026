@@ -5,21 +5,20 @@
 package frc.robot.commands.test;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.hopper.SlapdownSub;
-import java.util.function.Supplier;
+import frc.robot.subsystems.Shooter.HoodSub;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class SlapdownManual extends Command {
-  private SlapdownSub m_intake;
-  private Supplier<Double> speed;
+public class HoodStates extends Command {
+  HoodSub m_hood;
+  double angle;
 
-  /** Creates a new SlapdownManual. */
-  public SlapdownManual(SlapdownSub m_intake, Supplier<Double> speed) {
-    this.m_intake = m_intake;
-    this.speed = speed;
+  /** Creates a new HoodStates. */
+  public HoodStates(HoodSub m_hood, double angle) {
+    this.m_hood = m_hood;
+    this.angle = angle;
 
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(m_intake);
+    addRequirements(m_hood);
   }
 
   // Called when the command is initially scheduled.
@@ -29,13 +28,13 @@ public class SlapdownManual extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_intake.slapdownManual(speed.get());
+    m_hood.setAngle(angle);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_intake.stop();
+    m_hood.stop();
   }
 
   // Returns true when the command should end.

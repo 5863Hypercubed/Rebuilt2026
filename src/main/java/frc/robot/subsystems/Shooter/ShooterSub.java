@@ -18,10 +18,13 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.units.measure.MutAngle;
 import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.units.measure.MutVoltage;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -39,10 +42,12 @@ public class ShooterSub extends SubsystemBase {
   private SparkClosedLoopController Lpid;
   private SparkClosedLoopController Fpid;
 
-  private final SimpleMotorFeedforward sFF =
-      new SimpleMotorFeedforward(ShooterConstants.kS, ShooterConstants.kV, ShooterConstants.kA);
+  private final SimpleMotorFeedforward LsFF =
+      new SimpleMotorFeedforward(ShooterConstants.LkS, ShooterConstants.LkV, ShooterConstants.LkA);
 
-  private final MutVoltage flywheelVoltage = Volts.mutable(0);
+  private final InterpolatingDoubleTreeMap shooterRPMMap = new InterpolatingDoubleTreeMap();
+
+  private final MutVoltage flywheelVoltage = Volts.mutable(80);
 
   private final MutAngle position = Radians.mutable(0);
 
@@ -57,12 +62,13 @@ public class ShooterSub extends SubsystemBase {
     Lpid = shooterLMotor.getClosedLoopController();
 
     shooterLConfig.inverted(true).idleMode(IdleMode.kCoast);
-    shooterLConfig.smartCurrentLimit(40).voltageCompensation(12);
+    shooterLConfig.smartCurrentLimit(60).voltageCompensation(12);
     shooterLConfig
         .closedLoop
-        .p(Constants.ShooterConstants.kP)
-        .i(Constants.ShooterConstants.kI)
-        .d(Constants.ShooterConstants.kD);
+        .p(Constants.ShooterConstants.LkP)
+        .i(Constants.ShooterConstants.LkI)
+        .d(Constants.ShooterConstants.LkD);
+    shooterLConfig.encoder.velocityConversionFactor(Constants.ShooterConstants.gearRatio);
 
     shooterLMotor.configure(
         shooterLConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -71,29 +77,55 @@ public class ShooterSub extends SubsystemBase {
     shooterFMotor = new SparkMax(Constants.ShooterConstants.shooterFID, MotorType.kBrushless);
     SparkMaxConfig shooterFConfig = new SparkMaxConfig();
 
-    shooterFConfig.inverted(false).idleMode(IdleMode.kCoast);
-    shooterFConfig.smartCurrentLimit(40).voltageCompensation(12);
+    shooterFConfig.idleMode(IdleMode.kCoast).follow(shooterLMotor, true);
+    shooterFConfig.smartCurrentLimit(60).voltageCompensation(12);
+    shooterFConfig
+        .closedLoop
+        .p(Constants.ShooterConstants.LkP)
+        .i(Constants.ShooterConstants.LkI)
+        .d(Constants.ShooterConstants.LkD);
     Fpid = shooterFMotor.getClosedLoopController();
-
+    shooterFConfig.encoder.velocityConversionFactor(Constants.ShooterConstants.gearRatio);
     shooterFMotor.configure(
         shooterFConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
+    // Treemap
+    shooterRPMMap.put(31.375, 500.0);
+    shooterRPMMap.put(81.4, 750.0);
+    shooterRPMMap.put(140.0, 1000.0);
+    shooterRPMMap.put(211.9072, 1500.0);
+
     flywheelRoutine =
-      new SysIdRoutine(
-          new SysIdRoutine.Config(),
-          new SysIdRoutine.Mechanism(
-              shooterLMotor::setVoltage,
-              log -> {
-                log.motor("flywheel")
-                    .voltage(
-                        flywheelVoltage.mut_replace(
-                            shooterLMotor.get() * RobotController.getBatteryVoltage(), Volts))
-                    .angularPosition(position.mut_replace(shooterLEncoder.getPosition(), Rotations))
-                    .angularVelocity(
-                        velocity.mut_replace(
-                            shooterLEncoder.getVelocity() / 60, RotationsPerSecond));
-              },
-              this));
+        new SysIdRoutine(
+            new SysIdRoutine.Config(),
+            new SysIdRoutine.Mechanism(
+                (Voltage) -> {
+                  shooterLMotor.set(Voltage.in(Volts) / RobotController.getBatteryVoltage());
+                  shooterFMotor.set(Voltage.in(Volts) / RobotController.getBatteryVoltage());
+                },
+                log -> {
+                  log.motor("flywheelL")
+                      .voltage(
+                          flywheelVoltage.mut_replace(
+                              shooterLMotor.getAppliedOutput() * shooterLMotor.getBusVoltage(),
+                              Volts))
+                      .angularPosition(
+                          position.mut_replace(shooterLEncoder.getPosition(), Rotations))
+                      .angularVelocity(
+                          velocity.mut_replace(
+                              shooterLEncoder.getVelocity() / 60, RotationsPerSecond));
+                  log.motor("flywheelF")
+                      .voltage(
+                          flywheelVoltage.mut_replace(
+                              shooterFMotor.getAppliedOutput() * shooterFMotor.getBusVoltage(),
+                              Volts))
+                      .angularPosition(
+                          position.mut_replace(shooterFEncoder.getPosition(), Rotations))
+                      .angularVelocity(
+                          velocity.mut_replace(
+                              shooterFEncoder.getVelocity() / 60, RotationsPerSecond));
+                },
+                this));
     // Encoders
     configEncoders();
   }
@@ -107,22 +139,26 @@ public class ShooterSub extends SubsystemBase {
   }
 
   public void setspeed(double speed) {
-    shooterLMotor.set(speed);
-    shooterFMotor.set(speed);
+    shooterLMotor.set(-speed);
   }
 
   public void setRPM(double RPM) {
     double RPS = RPM / 60;
-    double radPerSec = RPS * 2 * Math.PI;
 
-    double ffVolts = sFF.calculate(radPerSec);
-    double arbFF = ffVolts / 12.0;
+    double ffVolts = LsFF.calculate(RPS);
+    // double arbFF = ffVolts / 12.0;
 
     Lpid.setSetpoint(
-        RPM, ControlType.kVelocity, ClosedLoopSlot.kSlot0, arbFF, ArbFFUnits.kPercentOut);
+        RPM, ControlType.kVelocity, ClosedLoopSlot.kSlot0, ffVolts, ArbFFUnits.kVoltage);
+  }
 
-    Fpid.setSetpoint(
-        RPM, ControlType.kVelocity, ClosedLoopSlot.kSlot0, arbFF, ArbFFUnits.kPercentOut);
+  public double getInterpolatedRPM(double distance) {
+    return shooterRPMMap.get(distance);
+  }
+
+  public void setRPMFromDistance(double distance) {
+    double rpm = shooterRPMMap.get(distance);
+    setRPM(rpm);
   }
 
   public boolean atRPM(double targetRPM) {
@@ -136,12 +172,33 @@ public class ShooterSub extends SubsystemBase {
 
   public void stop() {
     shooterLMotor.stopMotor();
+    shooterFMotor.stopMotor();
   }
 
-  public Command sysIdFlywheel(SysIdRoutine.Direction direction) {
+  public void voltageControl(double voltage) {
+    shooterLMotor.setVoltage(voltage);
+  }
+
+  public Command sysIdQuasi(SysIdRoutine.Direction direction) {
     return flywheelRoutine.quasistatic(direction);
   }
 
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return flywheelRoutine.dynamic(direction);
+  }
+
   @Override
-  public void periodic() {}
+  public void periodic() {
+
+    SmartDashboard.putNumber("flywheelL velocity", shooterLEncoder.getVelocity());
+    SmartDashboard.putNumber("flywheelF velcotiy", shooterFEncoder.getVelocity());
+    SmartDashboard.putNumber("setpoint", 1500);
+
+    SmartDashboard.putNumber("output", shooterLMotor.getAppliedOutput());
+
+    // double RPS = 1500 / 60;
+    // double radPerSec = RPS * 2 * Math.PI;
+    // SmartDashboard.putNumber("Lff", LsFF.calculate(radPerSec));
+    // SmartDashboard.putNumber("Fff", FsFF.calculate(radPerSec));
+  }
 }

@@ -2,12 +2,12 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.hopper.IndexerSub;
-import frc.robot.subsystems.hopper.SlapdownSub;
+import frc.robot.subsystems.hopper.IntakeSub;
 
 public class HopperStructure extends SubsystemBase {
 
   private IndexerSub indexer;
-  private SlapdownSub intake;
+  private IntakeSub intake;
 
   public enum HopperState {
     IDLE,
@@ -16,7 +16,7 @@ public class HopperStructure extends SubsystemBase {
 
   private HopperState state = HopperState.IDLE;
 
-  public HopperStructure(IndexerSub indexer, SlapdownSub intake) {
+  public HopperStructure(IndexerSub indexer, IntakeSub intake) {
     this.indexer = indexer;
     this.intake = intake;
   }

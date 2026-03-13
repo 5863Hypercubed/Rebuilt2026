@@ -24,4 +24,14 @@ public class VisionSub extends SubsystemBase {
       return false;
     }
   }
+
+  @Override
+  public void periodic() {
+    double ty = LimelightInfo.getTY("limelight");
+    double angle = Constants.LimeLightConstants.LIMELIGHT_ANGLE + ty;
+    /*System.out.println(
+        (Constants.LimeLightConstants.TARGET_HEIGHT - Constants.LimeLightConstants.LIMELIGHT_HEIGHT)
+            / Math.tan(Math.toRadians(angle)));
+    SmartDashboard.putBoolean("InVision?", hasTarget());*/
+  }
 }

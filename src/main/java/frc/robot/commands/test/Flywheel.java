@@ -28,13 +28,13 @@ public class Flywheel extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_flywheel.setspeed(speed);
+    m_flywheel.setRPM(speed);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_flywheel.setspeed(0);
+    m_flywheel.stop();
   }
 
   // Returns true when the command should end.

@@ -36,11 +36,11 @@ public class SlapdownSub extends SubsystemBase {
   public slapdownStates slapdownState;
 
   public SlapdownSub() {
-    slapdownState = slapdownStates.UP;
+    // slapdownState = slapdownStates.UP;
     slapdownMotor = new SparkMax(Constants.SlapdownConstants.slapdownID, MotorType.kBrushless);
-    intakeMotor = new SparkMax(Constants.SlapdownConstants.intakeID, MotorType.kBrushless);
+    // intakeMotor = new SparkMax(Constants.SlapdownConstants.intakeID, MotorType.kBrushless);
     slapdownEncoder = slapdownMotor.getEncoder();
-    intakeEncoder = intakeMotor.getEncoder();
+    // intakeEncoder = intakeMotor.getEncoder();
     slapdownPID =
         new PIDController(
             Constants.SlapdownConstants.kP,
@@ -54,31 +54,34 @@ public class SlapdownSub extends SubsystemBase {
 
     slapdownConfig
         .softLimit
-        .forwardSoftLimit(0) // Placeholder
+        .forwardSoftLimit(-1.2) // Placeholder
         .forwardSoftLimitEnabled(false)
-        .reverseSoftLimit(0) // Placeholder
+        .reverseSoftLimit(0.02) // Placeholder
         .reverseSoftLimitEnabled(false);
-
     slapdownConfig
         .smartCurrentLimit(15) // Placholder
         .voltageCompensation(12); // Placeholder
 
-    intakeConfig
-        .inverted(false)
-        .idleMode(IdleMode.kBrake)
-        .smartCurrentLimit(20)
-        .voltageCompensation(8);
+    /*intakeConfig
+    .inverted(false)
+    .idleMode(IdleMode.kBrake)
+    .smartCurrentLimit(20)
+    .voltageCompensation(8);*/
 
     slapdownMotor.configure(
         slapdownConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    intakeMotor.configure(
-        intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    /*intakeMotor.configure(
+    intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);*/
 
     slapdownEncoder.setPosition(0);
   }
 
   public void slapdownMove(double speed) {
     slapdownMotor.set(speed);
+  }
+
+  public void stop() {
+    slapdownMotor.stopMotor();
   }
 
   public void slapdownPosition(double setPoint) {
@@ -103,17 +106,17 @@ public class SlapdownSub extends SubsystemBase {
     return slapdownPID.atSetpoint();
   }
 
-  public void stop() {
+  /*public void stop() {
     intakeMotor.set(0);
-  }
+  }*/
 
   public void slapdownManual(double speed) {
     slapdownMotor.set(speed);
   }
 
-  public void autofeed() {
-    intakeMotor.set(0.3);
-  }
+  /*public void autofeed() {
+    intakeMotor.set(-0.3);
+  }*/
 
   @Override
   public void periodic() {
@@ -121,14 +124,14 @@ public class SlapdownSub extends SubsystemBase {
 
     SmartDashboard.putNumber("Slapdown position", slapdownEncoder.getPosition());
 
-    switch (slapdownState) {
+    /*switch (slapdownState) {
       case UP:
         slapdownPosition(0); // Placeholder
         break;
 
       case DOWN:
-        slapdownPosition(0); // Placeholder
+        slapdownPosition(1.142857432365417); // Placeholder
         break;
-    }
+    }*/
   }
 }

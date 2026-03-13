@@ -11,14 +11,15 @@ public class ShotCalc {
   private static final InterpolatingDoubleTreeMap hoodMap = new InterpolatingDoubleTreeMap();
   private static final InterpolatingDoubleTreeMap rpmMap = new InterpolatingDoubleTreeMap();
 
+  // inches
   static {
-    hoodMap.put(0.0, 0.0);
-    hoodMap.put(0.0, 0.0);
-    hoodMap.put(0.0, 0.0);
+    hoodMap.put(31.375, 0.0);
+    hoodMap.put(81.4, 0.0);
+    hoodMap.put(211.9072, 0.0);
 
-    rpmMap.put(0.3, 1000.0);
-    rpmMap.put(0.8, 2000.0);
-    rpmMap.put(1.5, 3000.0);
+    rpmMap.put(31.375, 500.0);
+    rpmMap.put(81.4, 750.0);
+    rpmMap.put(211.9072, 1500.0);
   }
 
   public static double rpmFromDistance(double distance) {

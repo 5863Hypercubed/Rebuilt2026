@@ -1,11 +1,10 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Shooter.HoodSub;
 import frc.robot.subsystems.Shooter.ShooterSub;
 import frc.robot.subsystems.hopper.SerializerSub;
-import frc.robot.util.ShotCalc;
+// import frc.robot.util.ShotCalc;
 
 public class ShooterStructure extends SubsystemBase {
 
@@ -62,34 +61,33 @@ public class ShooterStructure extends SubsystemBase {
   }
 
   private void handleSpinUp() {
-    // if (!vision.hasTarget()) {
-    if (vision.hasTarget()) {
+    if (!vision.hasTarget()) {
       state = ShooterState.IDLE;
       return;
     }
+    // targetRPM = ShotCalc.rpmFromDistance(distance);
+    // targetAngle = ShotCalc.hoodFromDistance(distance);
+    double distance = vision.getDistanceInches();
+    shooter.setRPMFromDistance(distance);
+    hood.setAngleFromDistance(distance);
 
-    double distance = 0.3; // vision.getDistanceInches();
-    targetRPM = ShotCalc.rpmFromDistance(distance);
-    targetAngle = ShotCalc.hoodFromDistance(distance);
-
-    shooter.setRPM(targetRPM);
-    hood.setAngle(targetAngle);
-
-    if (shooter.atRPM(targetRPM)) {
+    if (shooter.atRPM(distance)) {
       state = ShooterState.READY;
     }
   }
 
   private void handleReady() {
-    shooter.setRPM(targetRPM);
-    hood.setAngle(targetAngle);
+    double distance = vision.getDistanceInches();
+    shooter.setRPMFromDistance(distance);
+    hood.setAngle(distance);
 
     serializer.stop();
   }
 
   private void handleShoot() {
-    shooter.setRPM(targetRPM);
-    hood.setAngle(targetAngle);
+    double distance = vision.getDistanceInches();
+    shooter.setRPMFromDistance(distance);
+    hood.setAngle(distance);
     serializer.autofeed();
   }
 
@@ -104,5 +102,4 @@ public class ShooterStructure extends SubsystemBase {
       state = ShooterState.READY;
     }
   }
-
 }
